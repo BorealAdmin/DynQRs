@@ -1,76 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
-  <title></title>
+  <title>Procesando…</title>
   <style>
-      body {
-        background-color: lightblue;
-        text-align: center;
-      }
-      
-      .lds-ring {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 64px;
-  height: 64px;
-  margin: 8px;
-  border: 8px solid #fff;
-  border-radius: 50%;
-  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #fff transparent transparent transparent;
-}
-.lds-ring div:nth-child(1) {
-  animation-delay: -0.45s;
-}
-.lds-ring div:nth-child(2) {
-  animation-delay: -0.3s;
-}
-.lds-ring div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-@keyframes lds-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
+    body {
+      background-color: lightblue;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
 
+    .lds-ring {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin-top: 40px;
+    }
+    .lds-ring div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border: 8px solid #fff;
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: #fff transparent transparent transparent;
+    }
+    .lds-ring div:nth-child(1) { animation-delay: -0.45s; }
+    .lds-ring div:nth-child(2) { animation-delay: -0.3s; }
+    .lds-ring div:nth-child(3) { animation-delay: -0.15s; }
+
+    @keyframes lds-ring {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #003;
+    }
   </style>
 </head>
 <body>
-  <script>
-    const AS_URL_BASE = "https://script.google.com/macros/s/AKfycby2e26LD1p2WIhyHFYOMRYWFgtefR6g_2j3ZES_4aFBa-2LMMPAdolGNteTU91fhY4nIg/exec";
-    
-    var url = document.location.href;
-    var k = url.substr(url.lastIndexOf("k=")+2);
-    
-    if(k){
-      fetch(AS_URL_BASE+'?k='+k)
-      .then(r => r.text())
-      .then((r) => {
-        console.log(r);
-        //document.write(r);
-        if(r){
-          document.location.replace(r);
-        }
-      })
-      .catch(err => console.log(err))
-    }
 
+  <div class="lds-ring">
+    <div></div><div></div><div></div><div></div>
+  </div>
+
+  <div id="status">Procesando…</div>
+
+  <script>
+    const AS_URL_BASE =
+      "https://script.google.com/macros/s/AKfycby2e26LD1p2WIhyHFYOMRYWFgtefR6g_2j3ZES_4aFBa-2LMMPAdolGNteTU91fhY4nIg/exec";
+
+    const k = new URLSearchParams(window.location.search).get("k");
+    const statusEl = document.getElementById("status");
+
+    let seconds = 2;
+
+    const countdown = setInterval(() => {
+      if (seconds > 0) {
+        statusEl.textContent = `Procesando… ${seconds} segundo${seconds === 1 ? "" : "s"}`;
+        seconds--;
+      } else {
+        statusEl.textContent = "Publicando…";
+        clearInterval(countdown);
+      }
+    }, 1000);
+
+    if (k) {
+      fetch(`${AS_URL_BASE}?k=${encodeURIComponent(k)}`)
+        .then(r => r.text())
+        .then(url => {
+          if (url) {
+            statusEl.textContent = "Publicando…";
+            setTimeout(() => {
+              window.location.replace(url);
+            }, 300);
+          }
+        })
+        .catch(() => {
+          statusEl.textContent = "Error al procesar.";
+        });
+    }
   </script>
-  
-  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-  
-  
+
 </body>
 </html>
